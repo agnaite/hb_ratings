@@ -47,7 +47,17 @@ def process_login():
     user_email = request.form.get('email')
     password = request.form.get('password')
 
-    user_exists = User.query.filter_by(email=user_email).all() #Need to check if user is in DB and write an if statement based on that
+    user_exists = User.query.filter_by(email=user_email).first() 
+
+    if user_exists != None and user_exists.password == password:
+        flash('Successfully logged in!')
+        return redirect('/')
+    elif user_exists != None and user_exists.password != password:
+        flash('Incorrect password. Please reenter.')
+        return redirect('/login')
+    else:
+        flash('User account not found. Please register.')
+        return redirect('/login')
 
 
 
