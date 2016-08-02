@@ -22,7 +22,7 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
-
+    
     return render_template("homepage.html")
 
 @app.route('/users')
@@ -51,6 +51,7 @@ def process_login():
 
     if user_exists != None and user_exists.password == password:
         flash('Successfully logged in!')
+        session['logged_in'] = user_email
         return redirect('/')
     elif user_exists != None and user_exists.password != password:
         flash('Incorrect password. Please reenter.')
@@ -58,6 +59,15 @@ def process_login():
     else:
         flash('User account not found. Please register.')
         return redirect('/login')
+
+@app.route('/logout')
+def process_logout():
+    """Log out user"""
+
+    del session['logged_in']
+    flash("You are successfully logged out!")
+
+    return redirect('/')
 
 
 
