@@ -33,6 +33,25 @@ def user_list():
 
     return render_template('user_list.html', users=users)
 
+@app.route('/user_profile/<user_id>')
+def show_user_profile(user_id):
+    
+    current_user = User.query.get(user_id)
+    age = current_user.age
+    zipcode = current_user.zipcode
+    ratings = current_user.ratings
+    email = current_user.email
+    
+    user_ratings = {}
+
+    for item in ratings:
+        score = item.score
+        movie_title = Movie.query.get(item.movie_id).title
+        user_ratings[movie_title] = score
+ 
+    return render_template('user_profile.html', email=email, age=age, zipcode=zipcode, ratings=user_ratings)
+
+
 @app.route('/login')
 def login_user():
     """Allows user to input name and password"""
