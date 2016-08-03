@@ -82,6 +82,35 @@ def show_movie_details(movie_id):
     return render_template('movie_details.html', title=title, released_at=released_at, url=url, movie_ratings= movie_ratings,
                             average_score=average_score)
 
+@app.route('/register_form')
+def register_form():
+
+    return render_template('register.html')
+
+
+@app.route('/process_registration', methods=['POST'])
+def process_registration():
+
+    user_email = request.form.get('email')
+    password = request.form.get('password')
+    zipcode = request.form.get('zipcode')
+    age = request.form.get('age')
+
+    user_exists = User.query.filter_by(email=user_email).first() 
+
+    if user_exists != None:
+        flash('Your email is already registered. Please login.')
+        return redirect('/login')
+    else:
+        new_user = User(email=user_email, password=password, age=age, zipcode=zipcode)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Your account has been successfully created!")
+        session['logged_in'] = user_email
+
+        return redirect('/')
+
 
 @app.route('/login')
 def login_user():
@@ -108,7 +137,7 @@ def process_login():
         return redirect('/login')
     else:
         flash('User account not found. Please register.')
-        return redirect('/login')
+        return redirect('/register_form')
 
 @app.route('/logout')
 def process_logout():
