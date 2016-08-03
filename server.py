@@ -35,6 +35,7 @@ def user_list():
 
 @app.route('/user_profile/<user_id>')
 def show_user_profile(user_id):
+    """Show user profile"""
     
     current_user = User.query.get(user_id)
     age = current_user.age
@@ -50,6 +51,36 @@ def show_user_profile(user_id):
         user_ratings[movie_title] = score
  
     return render_template('user_profile.html', email=email, age=age, zipcode=zipcode, ratings=user_ratings)
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies"""
+
+    movies = db.session.query(Movie).order_by(Movie.title).all()
+
+    return render_template('movie_list.html', movies=movies)
+
+@app.route('/movie_details/<movie_id>')
+def show_movie_details(movie_id):
+    """Show movie details"""
+
+    current_movie = Movie.query.get(movie_id)
+
+    title = current_movie.title
+    released_at = current_movie.released_at
+    url = current_movie.imdb_url
+    ratings = current_movie.ratings
+
+    movie_ratings = []
+
+    for item in ratings:
+        score =item.score
+        movie_ratings.append(score)
+
+    average_score = sum(movie_ratings) / len(movie_ratings)
+
+    return render_template('movie_details.html', title=title, released_at=released_at, url=url, movie_ratings= movie_ratings,
+                            average_score=average_score)
 
 
 @app.route('/login')
