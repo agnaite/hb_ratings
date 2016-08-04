@@ -30,8 +30,20 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script type="text/javascript">
+    
+    // $(document).ready(function(){
+    //     $('#all_scores').hide()
+    // });
 
-    console.log("HELLO");
+    $('#show_scores').click(function(){
+        $('#all_scores').toggleClass("hidden");
+
+        if ($('#all_scores').is(":visible")) {
+            $('#show_scores').html('Hide all scores');
+        } else {
+            $('#show_scores').html('Show all scores');
+        }
+    });
 
     function confirmAddition(results){
         $('#score_msg').html(results.msg);
