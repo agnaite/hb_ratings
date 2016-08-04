@@ -25,5 +25,35 @@
 
     {% block content %} put your content here {% endblock %}
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+    console.log("HELLO");
+
+    function confirmAddition(results){
+        $('#score_msg').html(results.msg);
+        var scores = results.scores
+
+        $('#all_scores').html('');
+
+        for (var i=0; i< scores.length; i++) {
+            if (i != scores.length-1) {
+                $('#all_scores').append(scores[i] + ", ");
+            } else {
+                $('#all_scores').append(scores[i]);
+            }
+        }
+        
+    }
+
+    function submitRating(evt){
+        evt.preventDefault();
+        var user_score = {'score': $('#score_field').val(), 'movie_id': $('#movie_id').val()};
+
+        $.post('/process_score', user_score, confirmAddition);
+    }
+
+    $('#new_score_btn').click(submitRating)
+</script>
 </body>
 </html>

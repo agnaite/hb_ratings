@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, request, flash, session
+from flask import Flask, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
@@ -60,7 +60,7 @@ def movie_list():
 
     return render_template('movie_list.html', movies=movies)
 
-@app.route('/movie_details/<movie_id>')
+@app.route('/movie_details/<movie_id>', methods=['POST', 'GET'])
 def show_movie_details(movie_id):
     """Show movie details"""
 
@@ -79,8 +79,32 @@ def show_movie_details(movie_id):
 
     average_score = sum(movie_ratings) / len(movie_ratings)
 
+
     return render_template('movie_details.html', title=title, released_at=released_at, url=url, movie_ratings= movie_ratings,
-                            average_score=average_score)
+                            average_score=average_score, movie_id = movie_id)
+
+@app.route('/process_score', methods=['POST'])
+def process_score():
+    user_score = request.form.get('score')
+    movie_id = request.form.get('movie_id')
+    old_rating = db.session.query(Rating).filter_by(movie_id=movie_id, user_id=session['logged_in']).first()
+    all_scores_list = []
+
+    if old_rating != None:
+        old_rating.score = user_score
+        db.session.commit()
+        all_scores = db.session.query(Rating).filter_by(movie_id=movie_id).all()
+        for item in all_scores:
+            all_scores_list.append(item.score)
+        return jsonify({'scores': all_scores_list, 'msg': "Your score has been updated!"})
+    else:
+        new_rating = Rating(movie_id=movie_id, user_id=session['logged_in'], score=user_score)
+        db.session.add(new_rating)
+        db.session.commit()
+        all_scores = db.session.query(Rating).filter_by(movie_id=movie_id).all()
+        for item in all_scores:
+            all_scores_list.append(item.score)
+        return jsonify({'scores': all_scores_list, 'msg': "Your score has been added!"})
 
 @app.route('/register_form')
 def register_form():
@@ -107,7 +131,7 @@ def process_registration():
         db.session.commit()
 
         flash("Your account has been successfully created!")
-        session['logged_in'] = user_email
+        session['logged_in'] = new_user.user_id
 
         return redirect('/')
 
@@ -130,7 +154,7 @@ def process_login():
 
     if user_exists != None and user_exists.password == password:
         flash('Successfully logged in!')
-        session['logged_in'] = user_email
+        session['logged_in'] = user_exists.user_id
         return redirect('/')
     elif user_exists != None and user_exists.password != password:
         flash('Incorrect password. Please reenter.')
