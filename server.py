@@ -67,7 +67,7 @@ def show_movie_details(movie_id):
     current_movie = Movie.query.get(movie_id)
 
     title = current_movie.title
-    released_at = current_movie.released_at
+    released_at = current_movie.released_at.year
     url = current_movie.imdb_url
     ratings = current_movie.ratings
 
