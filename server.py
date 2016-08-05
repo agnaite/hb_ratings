@@ -96,7 +96,7 @@ def show_movie_details(movie_id):
     if (not user_rating) and user_id:
         user = User.query.get(user_id)
         if user:
-            prediction = round(user.predict_rating(current_movie), 2)
+            prediction = user.predict_rating(current_movie)
 
     if prediction:
         # User hasn't scored; use our prediction if we made one
@@ -146,6 +146,9 @@ def show_movie_details(movie_id):
 
     else:
         beratement = None
+
+    if prediction != None:
+        prediction = round(prediction, 2)
 
 
     return render_template('movie_details.html', title=title, released_at=released_at, url=url, movie_ratings= movie_ratings,
